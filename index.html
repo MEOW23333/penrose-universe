@@ -3,7 +3,22 @@
 :root{color-scheme:light}*{box-sizing:border-box}body{overflow-x:hidden}main{width:100%;max-width:1180px;margin:0 auto;padding:20px 16px 32px}h1{font-size:clamp(27px,6vw,36px);margin:8px 0 14px}.entry{margin:0 0 14px;gap:8px}.entry input{font-size:16px;min-height:48px}.entry .primary{min-width:82px;padding:12px 18px}.layout{grid-template-columns:1fr;gap:12px}.art{height:auto;aspect-ratio:1/1;min-height:310px;border-radius:16px}.history-controls{top:10px;right:10px}.history-controls button{padding:8px;font-size:12px}.zoom-controls{right:12px;bottom:12px}.zoom-controls button{width:44px;height:44px}.side{padding:18px;border-radius:16px}.side button{min-height:44px}.side input[type=range]{height:34px}.colors input{height:44px}.status{max-width:62%;font-size:11px}.head{margin-top:18px}.foot{font-size:12px}
 @media(min-width:800px){main{padding:32px 24px}.entry{margin:18px 0 22px}.layout{grid-template-columns:minmax(0,1fr) 260px;gap:20px}.art{height:640px;aspect-ratio:auto}.side{padding:20px}}
 @media(max-width:380px){main{padding:14px 10px}.art{min-height:290px}.entry .primary{min-width:70px;padding:10px}.history-controls button{font-size:11px}}
-</style><main><h1>无限的一隅</h1><div class="entry"><input id="phrase" value="希望我们能一起看很多次日落。" placeholder="输入一句话"><button class="primary" id="generate">生成</button></div><div class="layout"><div class="art"><canvas id="canvas"></canvas><div class="status" id="status">生成中</div><div class="history-controls"><button id="undo" title="撤销上一次修改">↶ 撤销</button><button id="redo" title="重做上一次修改">↷ 重做</button></div><div class="zoom-controls"><button id="minus" title="缩小">−</button><button id="plus" title="放大">+</button></div></div><aside class="side"><div class="head">密铺范围</div><div class="range-head"><span class="muted">范围层级</span><b id="levelText">12</b></div><input id="level" type="range" min="5" max="30" value="12" step="1"><div class="muted">5 — 30 · 调整后自动居中适配</div><div class="head">菱形颜色</div><div class="colors"><label>厚菱形<input type="color" id="thick" value="#d8b58d"></label><label>薄菱形<input type="color" id="thin" value="#88aaa2"></label></div><button id="seedColors">↺ 重置为原始配色</button><button id="randomColors">⤨ 随机颜色</button><div class="head">边界</div><label><input type="radio" name="edge" value="none"> 无边界</label><label><input type="radio" name="edge" value="line" checked> 显示边界</label><div class="head">导出</div><button id="png">↓ 导出图像 PNG</button><button id="svg">↓ 导出 SVG（嵌入图像）</button><button id="hashButton">↓ 导出哈希值</button><div class="head">SHA-256</div><div id="hash" class="hash">—</div><div class="head">视角</div><button id="reset">重置视角</button><div class="foot">右下角 + / − 缩放，画面自动居中</div></aside></div><div class="foot">数学构造：de Bruijn 五重网格；文字 SHA-256 决定五个网格的相位偏移（总和为零）。滑块控制可见范围（5–30）；哈希也确定两类菱形的初始颜色，颜色可以手动调整。原始配色由哈希连续映射到受约束的低饱和 OKLCH 色域；只有点击“随机颜色”才会从20组精选配色中抽取。</div></main><script>
+</style><style>
+/* V7: gallery-first responsive layout */
+main{max-width:960px}h1{font-weight:500;letter-spacing:.05em}
+.layout{display:block}.art{width:100%;height:auto;aspect-ratio:1/1;min-height:0;max-height:78vh;cursor:grab;border-color:#ececec;user-select:none}.art:active{cursor:grabbing}
+canvas{touch-action:none}.history-controls,.zoom-controls,.status{display:none!important}
+.side{display:none!important}.foot{max-width:720px;margin:22px auto 0;text-align:center}
+.actionbar{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:14px}
+.actionbar button{width:100%;min-height:48px;border-radius:12px;background:#fafafa;font-size:15px}
+.actionbar button.active{background:#222;color:#fff;border-color:#222}
+.toolpanel{display:none;border:1px solid #eee;border-radius:14px;padding:18px;margin-top:12px;background:#fff}
+.toolpanel.active{display:block}.toolpanel .head:first-child{margin-top:0}
+.toolpanel button{margin:6px 4px 6px 0}.toolpanel input[type=range]{width:100%;accent-color:#333}
+.toolpanel .colors{margin:12px 0}.toolpanel .hash{margin-top:10px}
+@media(min-width:900px){.art{max-height:660px;aspect-ratio:1.35/1}.actionbar{max-width:700px;margin:14px auto}.toolpanel{max-width:700px;margin:12px auto}}
+@media(max-width:500px){main{padding:18px 12px 32px}.entry{margin-bottom:12px}.art{aspect-ratio:1/1}.actionbar{gap:6px}.actionbar button{font-size:14px;padding:10px 3px;min-height:46px}.toolpanel{padding:14px}}
+</style><main><h1>无限的一隅</h1><div class="entry"><input id="phrase" value="" placeholder="天地本宽，而鄙者自隘"><button class="primary" id="generate">生成</button></div><div class="layout"><div class="art"><canvas id="canvas"></canvas><div class="status" id="status">生成中</div><div class="history-controls"><button id="undo" title="撤销上一次修改">↶ 撤销</button><button id="redo" title="重做上一次修改">↷ 重做</button></div><div class="zoom-controls"><button id="minus" title="缩小">−</button><button id="plus" title="放大">+</button></div></div><aside class="side"><div class="head">密铺范围</div><div class="range-head"><span class="muted">范围层级</span><b id="levelText">12</b></div><input id="level" type="range" min="5" max="30" value="12" step="1"><div class="muted">5 — 30 · 调整后自动居中适配</div><div class="head">菱形颜色</div><div class="colors"><label>厚菱形<input type="color" id="thick" value="#d8b58d"></label><label>薄菱形<input type="color" id="thin" value="#88aaa2"></label></div><button id="seedColors">↺ 重置为原始配色</button><button id="randomColors">⤨ 随机颜色</button><div class="head">边界</div><label><input type="radio" name="edge" value="none"> 无边界</label><label><input type="radio" name="edge" value="line" checked> 显示边界</label><div class="head">导出</div><button id="png">↓ 导出图像 PNG</button><button id="svg">↓ 导出 SVG（嵌入图像）</button><button id="hashButton">↓ 导出哈希值</button><div class="head">SHA-256</div><div id="hash" class="hash">—</div><div class="head">视角</div><button id="reset">重置视角</button><div class="foot">右下角 + / − 缩放，画面自动居中</div></aside></div><div class="foot">数学构造：根据文字的 SHA-256 哈希，利用 de Bruijn 五重网格算法生成彭罗斯密铺。</div></main><script>
 const $=x=>document.getElementById(x),c=$('canvas'),g=c.getContext('2d'),V=Array.from({length:5},(_,i)=>[Math.cos(2*Math.PI*i/5),Math.sin(2*Math.PI*i/5)]);let phase=[],tiles=[],hash='',level=12,mode='line',scale=20,offset=[0,0],palette=['#d8b58d','#88aaa2'],history=[],historyIndex=-1,restoring=false,hashBytes=[];const cross=(a,b)=>a[0]*b[1]-a[1]*b[0];function point(k){let x=0,y=0;for(let j=0;j<5;j++){x+=k[j]*V[j][0];y+=k[j]*V[j][1]}return[x,y]}
 async function digest(s){let data=new TextEncoder().encode(s);if(crypto.subtle)return [...new Uint8Array(await crypto.subtle.digest('SHA-256',data))];return sha256(data)}
 function sha256(data){let primes=[],n=2;while(primes.length<64){let ok=true;for(let p of primes){if(p*p>n)break;if(n%p===0){ok=false;break}}if(ok)primes.push(n);n++}const frac=x=>((x-Math.floor(x))*4294967296)>>>0,K=primes.map(p=>frac(Math.cbrt(p))),h=primes.slice(0,8).map(p=>frac(Math.sqrt(p)));let m=new Uint8Array(Math.ceil((data.length+9)/64)*64);m.set(data);m[data.length]=128;let bits=data.length*8;for(let i=0;i<8;i++)m[m.length-1-i]=Math.floor(bits/2**(8*i))&255;const rr=(x,n)=>(x>>>n)|(x<<(32-n));for(let pos=0;pos<m.length;pos+=64){let w=new Uint32Array(64);for(let i=0;i<16;i++){let j=pos+i*4;w[i]=(m[j]<<24)|(m[j+1]<<16)|(m[j+2]<<8)|m[j+3]}for(let i=16;i<64;i++){let a=w[i-15],b=w[i-2];w[i]=(w[i-16]+(rr(a,7)^rr(a,18)^(a>>>3))+w[i-7]+(rr(b,17)^rr(b,19)^(b>>>10)))>>>0}let[a,b,d,e,f,j,k,z]=h;for(let i=0;i<64;i++){let t1=(z+(rr(f,6)^rr(f,11)^rr(f,25))+((f&j)^(~f&k))+K[i]+w[i])>>>0,t2=((rr(a,2)^rr(a,13)^rr(a,22))+((a&b)^(a&d)^(b&d)))>>>0;z=k;k=j;j=f;f=(e+t1)>>>0;e=d;d=b;b=a;a=(t1+t2)>>>0}let q=[a,b,d,e,f,j,k,z];for(let i=0;i<8;i++)h[i]=(h[i]+q[i])>>>0}return h.flatMap(x=>[(x>>>24)&255,(x>>>16)&255,(x>>>8)&255,x&255])}
@@ -32,7 +47,7 @@ function deriveColors(b){let h1=360*u32(b,20),sep=105+75*u32(b,24),dir=b[31]&1?1
  return [toHex(L1,C1,h1),toHex(L2,C2,(h1+dir*sep+360)%360)]}
 
 function render(context,w,h,S=scale,O=offset,M=mode){context.fillStyle='#fff';context.fillRect(0,0,w,h);for(let t of tiles){let p=t.poly.map(v=>[w/2+(v[0]-O[0])*S,h/2+(v[1]-O[1])*S]);context.beginPath();context.moveTo(...p[0]);for(let i=1;i<4;i++)context.lineTo(...p[i]);context.closePath();context.fillStyle=palette[t.type?1:0];context.fill();if(M==='line'){context.strokeStyle='#fff';context.lineWidth=Math.max(.5,S*.045);context.stroke()}}}
-function draw(){render(g,c.clientWidth,c.clientHeight);$('status').textContent=`${tiles.length.toLocaleString()} 块菱形 · 范围 ${level}`;$('levelText').textContent=level}
+function draw(){render(g,c.clientWidth,c.clientHeight);$('levelText').textContent=level}
 function resize(){let d=Math.min(devicePixelRatio||1,2);c.width=Math.round(c.clientWidth*d);c.height=Math.round(c.clientHeight*d);g.setTransform(d,0,0,d,0,0);fit()}
 function fit(){scale=Math.min(c.clientWidth,c.clientHeight)/(level*2.55);offset=[0,0];draw()}
 function snapshot(){return {level,mode,palette:[...palette]}}
@@ -41,7 +56,7 @@ function updateHistory(){$('undo').disabled=historyIndex<=0;$('redo').disabled=h
 function restore(s){restoring=true;level=s.level;mode=s.mode;palette=[...s.palette];$('level').value=level;$('thick').value=palette[0];$('thin').value=palette[1];document.querySelector(`input[name=edge][value="${mode}"]`).checked=true;tiles=build(level);fit();restoring=false;updateHistory()}
 function changeLevel(n){level=n;tiles=build(level);fit();record()}
 function download(blob,ext){let url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='penrose-'+hash.slice(0,12)+'.'+ext;a.click();setTimeout(()=>URL.revokeObjectURL(url),2000)}
-async function generate(){let b=await digest($('phrase').value);hashBytes=b;hash=b.map(x=>x.toString(16).padStart(2,'0')).join('');$('hash').textContent=hash;let a=Array.from({length:5},(_,i)=>{let j=i*4;return .1+.8*((b[j]*16777216+b[j+1]*65536+b[j+2]*256+b[j+3])/4294967296)}),avg=a.reduce((x,y)=>x+y)/5;phase=a.map(x=>x-avg);palette=deriveColors(b);$('thick').value=palette[0];$('thin').value=palette[1];level=+$('level').value;tiles=build(level);fit();history=[];historyIndex=-1;record()}
+async function generate(){let b=await digest($('phrase').value.trim() || '天地本宽，而鄙者自隘');hashBytes=b;hash=b.map(x=>x.toString(16).padStart(2,'0')).join('');$('hash').textContent=hash;let a=Array.from({length:5},(_,i)=>{let j=i*4;return .1+.8*((b[j]*16777216+b[j+1]*65536+b[j+2]*256+b[j+3])/4294967296)}),avg=a.reduce((x,y)=>x+y)/5;phase=a.map(x=>x-avg);palette=deriveColors(b);$('thick').value=palette[0];$('thin').value=palette[1];level=+$('level').value;tiles=build(level);fit();history=[];historyIndex=-1;record()}
 $('generate').onclick=generate;$('phrase').onkeydown=e=>{if(e.key==='Enter')generate()};
 $('level').addEventListener('input',e=>{level=+e.target.value;tiles=build(level);fit()});$('level').addEventListener('change',()=>record());
 document.querySelectorAll('input[name=edge]').forEach(e=>e.onchange=()=>{mode=e.value;draw();record()});
@@ -51,6 +66,37 @@ $('randomColors').onclick=()=>{let idx=crypto.getRandomValues?crypto.getRandomVa
 $('undo').onclick=()=>{if(historyIndex>0)restore(history[--historyIndex])};$('redo').onclick=()=>{if(historyIndex<history.length-1)restore(history[++historyIndex])};
 $('plus').onclick=()=>{scale*=1.25;draw()};$('minus').onclick=()=>{scale/=1.25;draw()};$('reset').onclick=fit;
 $('png').onclick=()=>{let out=document.createElement('canvas');out.width=out.height=2400;render(out.getContext('2d'),2400,2400,2400/(level*2.55),[0,0],mode);out.toBlob(b=>download(b,'png'))};
-$('hashButton').onclick=()=>download(new Blob([JSON.stringify({algorithm:'SHA-256 + de Bruijn pentagrid v5 / OKLCH constrained hash palette',text:$('phrase').value,hash,phase,palette,level},null,2)],{type:'application/json'}),'json');
+$('hashButton').onclick=()=>download(new Blob([JSON.stringify({algorithm:'SHA-256 + de Bruijn pentagrid v5 / OKLCH constrained hash palette',text:$('phrase').value.trim() || '天地本宽，而鄙者自隘',hash,phase,palette,level},null,2)],{type:'application/json'}),'json');
 $('svg').onclick=()=>{let out=document.createElement('canvas');out.width=out.height=2400;render(out.getContext('2d'),2400,2400,2400/(level*2.55),[0,0],mode);let data=out.toDataURL('image/png');let svg=`<svg xmlns="http://www.w3.org/2000/svg" width="2400" height="2400" viewBox="0 0 2400 2400"><image width="2400" height="2400" href="${data}"/></svg>`;download(new Blob([svg],{type:'image/svg+xml'}),'svg')};
-new ResizeObserver(resize).observe(c);generate();</script></html>
+
+function setupMobileUI(){
+ const layout=document.querySelector('.layout'),art=document.querySelector('.art'),side=document.querySelector('.side');
+ const bar=document.createElement('nav');bar.className='actionbar';bar.setAttribute('aria-label','作品操作');
+ const edit=document.createElement('section'),exp=document.createElement('section');edit.className=exp.className='toolpanel';
+ edit.id='editPanel';exp.id='exportPanel';
+ const buttons=[['编辑',()=>toggle('editPanel')],['撤销',()=>{$('undo').click();updateActionUndo()}],['重置',()=>{const original=history[0];if(original){restore(original);record();}fit();closePanels()}],['导出',()=>toggle('exportPanel')]];
+ const refs={};for(const [name,fn] of buttons){let b=document.createElement('button');b.type='button';b.textContent=name;b.onclick=fn;bar.appendChild(b);refs[name]=b}
+ function closePanels(){edit.classList.remove('active');exp.classList.remove('active');refs['编辑'].classList.remove('active');refs['导出'].classList.remove('active')}
+ function toggle(id){const target=id==='editPanel'?edit:exp,was=target.classList.contains('active');closePanels();if(!was){target.classList.add('active');refs[id==='editPanel'?'编辑':'导出'].classList.add('active')}}
+ function updateActionUndo(){refs['撤销'].disabled=historyIndex<=0}
+ layout.after(bar,edit,exp);
+ // Reuse the original controls and listeners without duplicating state.
+ let nodes=[...side.children];let exportMode=false;
+ for(let node of nodes){
+  if(node.classList.contains('head')){let t=node.textContent.trim();if(t==='导出')exportMode=true;if(t==='SHA-256')exportMode=true;if(t==='视角')break;}
+  (exportMode?exp:edit).appendChild(node);
+ }
+ side.remove();$('reset').remove();document.querySelectorAll('.toolpanel .foot').forEach(x=>x.remove());
+ document.querySelectorAll('.toolpanel .muted').forEach(x=>{if(x.textContent.includes('5 — 30'))x.remove()});
+ const observer=new MutationObserver(updateActionUndo);observer.observe($('undo'),{attributes:true,attributeFilter:['disabled']});updateActionUndo();
+ // Wheel zoom only when the pointer is over the image, not when scrolling elsewhere.
+ c.addEventListener('wheel',e=>{e.preventDefault();let rect=c.getBoundingClientRect(),x=e.clientX-rect.left-rect.width/2,y=e.clientY-rect.top-rect.height/2;zoomAt(x,y,Math.exp(-e.deltaY*.0015))},{passive:false});
+ c.addEventListener('dblclick',e=>{let r=c.getBoundingClientRect();zoomAt(e.clientX-r.left-r.width/2,e.clientY-r.top-r.height/2,1.8)});
+ let pointers=new Map(),previousDistance=0,lastTap=0;
+ c.addEventListener('pointerdown',e=>{c.setPointerCapture(e.pointerId);pointers.set(e.pointerId,[e.clientX,e.clientY]);if(pointers.size===1&&e.pointerType==='touch'){let now=Date.now();if(now-lastTap<310){let r=c.getBoundingClientRect();zoomAt(e.clientX-r.left-r.width/2,e.clientY-r.top-r.height/2,1.8)}lastTap=now}if(pointers.size===2)previousDistance=distance()});
+ function distance(){let p=[...pointers.values()];return p.length<2?0:Math.hypot(p[0][0]-p[1][0],p[0][1]-p[1][1])}
+ c.addEventListener('pointermove',e=>{if(!pointers.has(e.pointerId))return;let old=pointers.get(e.pointerId);pointers.set(e.pointerId,[e.clientX,e.clientY]);if(pointers.size===1){offset[0]-=(e.clientX-old[0])/scale;offset[1]-=(e.clientY-old[1])/scale;draw()}else if(pointers.size===2){let d=distance();if(previousDistance>0){let p=[...pointers.values()],r=c.getBoundingClientRect(),mx=(p[0][0]+p[1][0])/2-r.left-r.width/2,my=(p[0][1]+p[1][1])/2-r.top-r.height/2;zoomAt(mx,my,d/previousDistance)}previousDistance=d}});
+ for(const event of ['pointerup','pointercancel','lostpointercapture'])c.addEventListener(event,e=>{pointers.delete(e.pointerId);previousDistance=distance()});
+ function zoomAt(x,y,factor){let next=Math.min(500,Math.max(.2,scale*factor)),ratio=next/scale;offset[0]+=x/scale-x/next;offset[1]+=y/scale-y/next;scale=next;draw()}
+}
+\nnew ResizeObserver(resize).observe(c);setupMobileUI();generate();</script></html>
