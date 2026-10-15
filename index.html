@@ -49,7 +49,8 @@ function deriveColors(b){let h1=360*u32(b,20),sep=105+75*u32(b,24),dir=b[31]&1?1
 function render(context,w,h,S=scale,O=offset,M=mode){context.fillStyle='#fff';context.fillRect(0,0,w,h);for(let t of tiles){let p=t.poly.map(v=>[w/2+(v[0]-O[0])*S,h/2+(v[1]-O[1])*S]);context.beginPath();context.moveTo(...p[0]);for(let i=1;i<4;i++)context.lineTo(...p[i]);context.closePath();context.fillStyle=palette[t.type?1:0];context.fill();if(M==='line'){context.strokeStyle='#fff';context.lineWidth=Math.max(.5,S*.045);context.stroke()}}}
 function draw(){render(g,c.clientWidth,c.clientHeight);$('levelText').textContent=level}
 function resize(){let d=Math.min(devicePixelRatio||1,2);c.width=Math.round(c.clientWidth*d);c.height=Math.round(c.clientHeight*d);g.setTransform(d,0,0,d,0,0);fit()}
-function fit(){scale=fillMode?Math.max(c.clientWidth,c.clientHeight)/(30*1.65):Math.min(c.clientWidth,c.clientHeight)/(level*2.55);offset=[0,0];draw()}
+function fillRadius(w,h,S){return Math.ceil(Math.hypot(w,h)/(2*S)+7)}
+function fit(){scale=Math.min(c.clientWidth,c.clientHeight)/(level*2.55);offset=[0,0];if(fillMode)tiles=build(fillRadius(c.clientWidth,c.clientHeight,scale));draw()}
 function snapshot(){return {level,mode,palette:[...palette],fillMode}}
 function record(){if(restoring)return;history=history.slice(0,historyIndex+1);history.push(snapshot());historyIndex=history.length-1;updateHistory()}
 function updateHistory(){$('undo').disabled=historyIndex<=0;$('redo').disabled=historyIndex>=history.length-1}
@@ -70,11 +71,11 @@ $('hashButton').onclick=()=>download(new Blob([JSON.stringify({algorithm:'SHA-25
 $('svg').onclick=()=>{let out=exportCanvas();let data=out.toDataURL('image/png');let svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${out.width}" height="${out.height}" viewBox="0 0 ${out.width} ${out.height}"><image width="${out.width}" height="${out.height}" href="${data}"/></svg>`;download(new Blob([svg],{type:'image/svg+xml'}),'svg')};
 
 function syncFillButton(){let b=$('fillCanvas');if(b){b.textContent=fillMode?'退出铺满':'铺满画布';b.setAttribute('aria-pressed',String(fillMode))}}
-function exportCanvas(){let w=2400,h=Math.round(w*c.clientHeight/c.clientWidth),out=document.createElement('canvas');out.width=w;out.height=h;let S=fillMode?Math.max(w,h)/(30*1.65):Math.min(w,h)/(level*2.55);render(out.getContext('2d'),w,h,S,[0,0],mode);return out}
+function exportCanvas(){let w=2400,h=Math.round(w*c.clientHeight/c.clientWidth),out=document.createElement('canvas');out.width=w;out.height=h;let S=Math.min(w,h)/(level*2.55);render(out.getContext('2d'),w,h,S,[0,0],mode);return out}
 function setupMobileUI(){
  const layout=document.querySelector('.layout'),art=document.querySelector('.art'),side=document.querySelector('.side');
  const fillButton=document.createElement('button');fillButton.type='button';fillButton.id='fillCanvas';fillButton.style.cssText='width:100%;margin:12px 0 4px;min-height:44px;border-radius:10px';fillButton.textContent='铺满画布';$('level').insertAdjacentElement('afterend',fillButton);
- fillButton.onclick=()=>{fillMode=!fillMode;if(fillMode){level=30;$('level').value=30;tiles=build(30)}syncFillButton();fit();record()};
+ fillButton.onclick=()=>{fillMode=!fillMode;if(fillMode){level=30;$('level').value=30}else{tiles=build(level)}syncFillButton();fit();record()};
  const bar=document.createElement('nav');bar.className='actionbar';bar.setAttribute('aria-label','作品操作');
  const edit=document.createElement('section'),exp=document.createElement('section');edit.className=exp.className='toolpanel';
  edit.id='editPanel';exp.id='exportPanel';
