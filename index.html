@@ -107,7 +107,7 @@ function setupMobileUI(){
   if(node.classList.contains('head')){let t=node.textContent.trim();if(t==='导出')exportMode=true;if(t==='SHA-256')exportMode=true;if(t==='视角')break;}
   (exportMode?exp:edit).appendChild(node);
  }
- side.remove();document.querySelectorAll('.toolpanel .foot').forEach(x=>x.remove());
+ side.remove();edit.classList.add('active');refs['编辑'].classList.add('active');document.querySelectorAll('.toolpanel .foot').forEach(x=>x.remove());
  document.querySelectorAll('.toolpanel .muted').forEach(x=>{if(x.textContent.includes('5 — 30'))x.remove()});
  const observer=new MutationObserver(updateActionUndo);observer.observe($('undo'),{attributes:true,attributeFilter:['disabled']});updateActionUndo();
  // Wheel zoom only when the pointer is over the image, not when scrolling elsewhere.
