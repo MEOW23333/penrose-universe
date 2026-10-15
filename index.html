@@ -52,7 +52,19 @@ function resize(){let d=Math.min(devicePixelRatio||1,2);c.width=Math.round(c.cli
 function fillRadius(w,h,S){return Math.ceil(Math.hypot(w,h)/(2*S)+7)}
 function fit(){scale=Math.min(c.clientWidth,c.clientHeight)/(level*2.55);offset=[0,0];fillExtent=0;fillMode=false;tiles=build(level);syncFillButton();draw()}
 function requiredFillRadius(){const w=c.clientWidth,h=c.clientHeight;return Math.ceil(Math.hypot(Math.abs(offset[0])+w/(2*scale),Math.abs(offset[1])+h/(2*scale))+7)}
-function fillCurrentView(){const required=requiredFillRadius();const next=Math.min(MAX_FILL_RADIUS,Math.max(fillExtent,level,required));if(next>fillExtent){fillExtent=next;tiles=build(fillExtent);fillMode=true;record();draw()}syncFillButton();return next>=required}
+function fillCurrentView(){
+ const required=requiredFillRadius(),next=Math.min(MAX_FILL_RADIUS,Math.max(fillExtent,level,required));
+ let changed=false;
+ if(next>fillExtent){fillExtent=next;tiles=build(fillExtent);fillMode=true;changed=true}
+ if(fillExtent>=MAX_FILL_RADIUS){
+   // Largest centered view fitting inside the generated disk, with geometric safety margin.
+   const safeRadius=Math.max(1,MAX_FILL_RADIUS-8);
+   const widest=Math.hypot(c.clientWidth,c.clientHeight)/(2*safeRadius);
+   if(Math.abs(scale-widest)>1e-8||Math.hypot(...offset)>1e-8){scale=widest;offset=[0,0];changed=true}
+ }
+ if(changed){draw();record()}
+ syncFillButton();return next>=required
+}
 
 function snapshot(){return {level,mode,palette:[...palette],fillMode,fillExtent,scale,offset:[...offset]}}
 function record(){if(restoring)return;history=history.slice(0,historyIndex+1);history.push(snapshot());historyIndex=history.length-1;updateHistory()}
