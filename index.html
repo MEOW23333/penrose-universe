@@ -100,9 +100,9 @@ function setupMobileUI(){
  let pointers=new Map(),previousDistance=0,lastTap=0;
  c.addEventListener('pointerdown',e=>{c.setPointerCapture(e.pointerId);pointers.set(e.pointerId,[e.clientX,e.clientY]);if(pointers.size===1&&e.pointerType==='touch'){let now=Date.now();if(now-lastTap<310){let r=c.getBoundingClientRect();zoomAt(e.clientX-r.left-r.width/2,e.clientY-r.top-r.height/2,1.8)}lastTap=now}if(pointers.size===2)previousDistance=distance()});
  function distance(){let p=[...pointers.values()];return p.length<2?0:Math.hypot(p[0][0]-p[1][0],p[0][1]-p[1][1])}
- c.addEventListener('pointermove',e=>{if(!pointers.has(e.pointerId))return;let old=pointers.get(e.pointerId);pointers.set(e.pointerId,[e.clientX,e.clientY]);if(pointers.size===1){if(!fillMode){offset[0]-=(e.clientX-old[0])/scale;offset[1]-=(e.clientY-old[1])/scale;draw()}}else if(pointers.size===2){let d=distance();if(previousDistance>0){let p=[...pointers.values()],r=c.getBoundingClientRect(),mx=(p[0][0]+p[1][0])/2-r.left-r.width/2,my=(p[0][1]+p[1][1])/2-r.top-r.height/2;zoomAt(mx,my,d/previousDistance)}previousDistance=d}});
+ c.addEventListener('pointermove',e=>{if(!pointers.has(e.pointerId))return;let old=pointers.get(e.pointerId);pointers.set(e.pointerId,[e.clientX,e.clientY]);if(pointers.size===1){offset[0]-=(e.clientX-old[0])/scale;offset[1]-=(e.clientY-old[1])/scale;draw()}else if(pointers.size===2){let d=distance();if(previousDistance>0){let p=[...pointers.values()],r=c.getBoundingClientRect(),mx=(p[0][0]+p[1][0])/2-r.left-r.width/2,my=(p[0][1]+p[1][1])/2-r.top-r.height/2;zoomAt(mx,my,d/previousDistance)}previousDistance=d}});
  for(const event of ['pointerup','pointercancel','lostpointercapture'])c.addEventListener(event,e=>{pointers.delete(e.pointerId);previousDistance=distance()});
- function zoomAt(x,y,factor){let next=Math.min(500,Math.max(.2,scale*factor)),ratio=next/scale;if(!fillMode){offset[0]+=x/scale-x/next;offset[1]+=y/scale-y/next}scale=next;draw()}
+ function zoomAt(x,y,factor){let next=Math.min(500,Math.max(.2,scale*factor)),ratio=next/scale;offset[0]+=x/scale-x/next;offset[1]+=y/scale-y/next;scale=next;draw()}
 }
 
 new ResizeObserver(resize).observe(c);setupMobileUI();generate();</script></html>
